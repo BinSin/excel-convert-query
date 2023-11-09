@@ -88,6 +88,8 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
           // 공백인 경우는 공백으로 들어감
           if (value == null) {
             sb.append("null");
+          } else if (j == sysCrtDttmIndex) { // 생성일은 value 그대로 입력
+            sb.append(value);
           } else {
             sb.append("'").append(value).append("'");
           }
