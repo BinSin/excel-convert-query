@@ -23,7 +23,7 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
     Row fieldsRow = worksheet.getRow(1); // 두번번째 row 부터 읽기
 
     int valueLocation = 3;
-    int columnSize = fieldsRow.getPhysicalNumberOfCells() - valueLocation; // 실제 데이터는 4번째부터 존재
+    int columnSize = fieldsRow.getPhysicalNumberOfCells() - 1;
 
     String firstQuery = getInsertAndFieldsName(fieldsRow, tableName, columnSize, queryDto.getSchema(), queryDto.getUser());
 
@@ -46,30 +46,43 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
 
         sb.append("(");
         for (int j = 0; j <= columnSize; j++) {
+          String value = null;
 
           Cell cell = row.getCell(j);
-          // // 값이 null인 경우, null
+
+          // 값이 null인 경우, null
           if (cell == null) {
-            sb.append("null");
+            if (j != sysCrtrIdIndex && j != sysCrtDttmIndex) {
+              sb.append("null");
 
-            if (j != columnSize) {
-              sb.append(", ");
+              if (j != columnSize) {
+                sb.append(", ");
+              }
+              continue;
             }
-            continue;
+
+            // 생성자, 생성일 자동 세팅
+            if (j == sysCrtrIdIndex) {
+              value = "ADMIN";
+            } else if (j == sysCrtDttmIndex) {
+              value = "getdate()";
+            }
+          } else {
+            value = switch (cell.getCellType()) {
+              case Cell.CELL_TYPE_STRING -> cell.getStringCellValue();
+              case Cell.CELL_TYPE_NUMERIC -> {
+                // int형 double형 구별
+                double cellValue = cell.getNumericCellValue();
+                if (cellValue == Math.rint(cellValue)) {
+                  yield String.valueOf((int) cellValue);
+                } else {
+                  yield String.valueOf(cellValue);
+                }
+              }
+              default -> null;
+            };
           }
 
-          String value = switch (cell.getCellType()) {
-            case Cell.CELL_TYPE_STRING -> cell.getStringCellValue();
-            case Cell.CELL_TYPE_NUMERIC -> Integer.toString((int) cell.getNumericCellValue());
-            default -> null;
-          };
-
-          // 생성자, 생성일 자동 세팅
-          if (j == sysCrtrIdIndex) {
-            value = "ADMIN";
-          } else if (j == sysCrtDttmIndex) {
-            value = "getdate()";
-          }
 
           // 값이 null인 경우, null
           // 공백인 경우는 공백으로 들어감
