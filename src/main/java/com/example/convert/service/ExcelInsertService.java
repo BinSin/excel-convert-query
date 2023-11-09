@@ -37,7 +37,7 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
       sb.append(firstQuery);
 
       // values 세팅
-      for (int i = (loopCount * MAX_SIZE) + valueLocation; i <= (loopCount+1) * MAX_SIZE; i++) {
+      for (int i = (loopCount * MAX_SIZE) + valueLocation; i < (loopCount+1) * MAX_SIZE + valueLocation; i++) {
         Row row = worksheet.getRow(i);
 
         if (row == null) { // 첫번째 데이터가 null이면 스톱
@@ -97,7 +97,7 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
           }
         }
 
-        if (i != (loopCount+1) * MAX_SIZE && worksheet.getRow(i+1) != null) {
+        if (i != (loopCount+1) * MAX_SIZE + valueLocation - 1 && worksheet.getRow(i+1) != null) {
           sb.append("),\n");
         } else {
           sb.append(");\n");
