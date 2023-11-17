@@ -50,8 +50,11 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
 
           Cell cell = row.getCell(j);
 
-          // 값이 null인 경우, null
-          if (cell == null) {
+          if (j == sysCrtrIdIndex) {
+            value = "ADMIN";
+          } else if (j == sysCrtDttmIndex) {
+            value = "getdate()";
+          } else if (cell == null) { // 값이 null인 경우, null
             if (j != sysCrtrIdIndex && j != sysCrtDttmIndex) {
               sb.append("null");
 
@@ -59,13 +62,6 @@ public class ExcelInsertService implements ExcelService<InsertQueryDto> {
                 sb.append(", ");
               }
               continue;
-            }
-
-            // 생성자, 생성일 자동 세팅
-            if (j == sysCrtrIdIndex) {
-              value = "ADMIN";
-            } else if (j == sysCrtDttmIndex) {
-              value = "getdate()";
             }
           } else {
             value = switch (cell.getCellType()) {
